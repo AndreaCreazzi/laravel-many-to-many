@@ -85,8 +85,7 @@
                                 <div class="mb-3">
                                     <label for="description">Descrizione</label>
                                     <textarea class="form-control @error('description') is-invalid @elseif(old('description')) is-valid @enderror"
-                                        placeholder="Inserisci descrizione" id="description" name="description" style="height: 100px"
-                                        value="{{ old('description') }}" required></textarea>
+                                        placeholder="Inserisci descrizione" id="description" name="description" style="height: 100px" required>{{ old('description') }}</textarea>
                                     @error('description')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

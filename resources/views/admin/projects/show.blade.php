@@ -2,9 +2,12 @@
 
 @section('content')
     <div class="container">
-        <h2 class="fs-4 text-secondary my-4">
-            Progetto
-        </h2>
+        <div class="d-flex align-items-center justify-content-between">
+            <h2 class="fs-4 text-secondary my-4">
+                Progetto
+            </h2>
+            <a href="{{ route('admin.projects.index') }}" class="btn btn-primary">Torna indietro</a>
+        </div>
         <div class="row justify-content-center">
             <div class="col-12">
                 <div class="card">
@@ -20,9 +23,22 @@
                                 </div>
                             @endif
                             <div class="col-6">
-                                <h5 class="card-title">{{ $projects->title }}</h5>
-                                <p class="card-text">{{ $projects->description }}</p>
-                                <a href="{{ route('admin.projects.index') }}" class="btn btn-primary">Torna indietro</a>
+                                <div class="d-flex align-items-center">
+                                    <h5 class="card-title me-3">{{ $projects->title }}</h5>
+                                    @forelse ($projects->technologies as $technology)
+                                        <span
+                                            class="badge rounded-pill bg-{{ $technology->color }} me-2 text-dark">{{ $technology->label }}</span>
+                                    @empty
+                                        -
+                                    @endforelse
+                                </div>
+                                @if ($projects->type)
+                                    <span class="badge p-2"
+                                        style="background-color: {{ $projects->type->color }}">{{ $projects->type?->label }}</span>
+                                @else
+                                    -
+                                @endif
+                                <p class="card-text mt-2">{{ $projects->description }}</p>
                             </div>
                         </div>
                     </div>
