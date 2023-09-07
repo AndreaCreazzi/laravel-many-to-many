@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Project;
 use App\Http\Controllers\Controller;
+use App\Models\Technology;
 use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -27,7 +29,8 @@ class ProjectController extends Controller
     {
         $project = new Project();
         $types = Type::select('id', 'label')->get();
-        return view('admin.projects.create', compact('project', 'types'));
+        $technologies = Technology::select('id', 'label')->get();
+        return view('admin.projects.create', compact('project', 'types', 'technologies'));
     }
 
     /**
@@ -46,10 +49,12 @@ class ProjectController extends Controller
             'description' => 'required|string',
             'link' => 'required|url:http,https',
             'image' => 'nullable|image',
-            'type_id' => 'nullable|exists:types,id'
+            'type_id' => 'nullable|exists:types,id',
+            'technologies' => 'nullable|exists:technologies,id'
         ]);
         $project->fill($data);
         $project->save();
+        if (Arr::exists($data, 'technologies')) $project->technologies()->attach($data['technologies']);
         return to_route('admin.projects.show', $project);
     }
 
@@ -68,22 +73,24 @@ class ProjectController extends Controller
     public function edit(Project $project)
     {
         $types = Type::select('id', 'label')->get();
-        return view('admin.projects.edit', compact('project', 'types'));
+        $technologies = Technology::select('id', 'label')->get();
+        $project_technology_ids = $project->technologies->pluck('id')->toArray();
+        return view('admin.projects.edit', compact('project', 'types', 'technologies', 'project_technology_ids'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Project $project)
     {
-        $project = Project::findOrFail($id);
 
         $request->validate([
             'title' => ['required', 'string'],
             'description' => 'required|string',
             'link' => 'required|url:http,https',
             'image' => 'nullable|image',
-            'type_id' => 'nullable|exists:types,id'
+            'type_id' => 'nullable|exists:types,id',
+            'technologies' => 'nullable|exists:technologies,id'
         ]);
 
         $data = $request->all();
@@ -95,6 +102,9 @@ class ProjectController extends Controller
         };
 
         $project->update($data);
+
+        if (!Arr::exists($data, 'technologies') && count($project->technologies)) $project->technologies()->detach();
+        elseif (Arr::exists($data, 'technologies')) $project->technologies()->sync($data['technologies']);
 
         return to_route('admin.projects.show', $project->id);
     }
