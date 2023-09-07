@@ -15,6 +15,7 @@
                         <th scope="col">#</th>
                         <th scope="col">titolo</th>
                         <th scope="col">tipo</th>
+                        <th scope="col">tecnologia</th>
                         <th scope="col">link</th>
                         <th scope="col"></th>
                     </tr>
@@ -31,6 +32,14 @@
                                 @else
                                     -
                                 @endif
+                            </td>
+                            <td>
+                                @forelse ($project->technologies as $technology)
+                                    <span
+                                        class="badge rounded-pill bg-{{ $technology->color }}">{{ $technology->label }}</span>
+                                @empty
+                                    -
+                                @endforelse
                             </td>
                             <td><a class="text-decoration-none text-white"
                                     href="{{ $project->link }}">{{ $project->link }}</a></td>
